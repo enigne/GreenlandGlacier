@@ -2,7 +2,7 @@
 %
 % Last modified: 2022-06-16
 
-function generateAnimation(varargin)
+function extrapolateNoIceVelocity(varargin)
 	%Check inputs {{{
 	%recover options
 	options=pairoptions(varargin{:});
@@ -12,11 +12,13 @@ function generateAnimation(varargin)
 	if isempty(glacier)
 		error('glacier can not be empty')
 	end
-	projPath = ['/totten_1/chenggong/', glacier, '/'];
 	% }}}
-	%GET path of workspace: {{{
+	%GET path (of the workspace) {{{
 	workingPath = getfieldvalue(options,'path','/totten_1/chenggong/');
 	projPath = [workingPath, glacier, '/'];
+	% }}}
+	%GET results folder : './PostProcessing/Results/'{{{
+	resultsFolder = getfieldvalue(options,'results folder','./PostProcessing/Results/');
 	% }}}
 	%GET step name{{{
 	stepName = getfieldvalue(options, 'step name', 'Transient');
@@ -24,18 +26,24 @@ function generateAnimation(varargin)
 	%GET CALFIN model{{{
 	mdCALFINFolder = getfieldvalue(options, 'CALFIN model', '');
 	% }}}
+	%GET vdata filename: timeSeries_Obs_onmesh{{{
+	vfilename = getfieldvalue(options, 'vdata filename', 'timeSeries_Obs_onmesh');
+	vdatafile = [projPath, resultsFolder, vfilename, '.mat'];
+	% }}}
+	%GET save filename: timeSeries_Obs_onmesh_extrap{{{
+	sfilename = getfieldvalue(options, 'save filename', 'timeSeries_Obs_onmesh_extrap');
+	saveFilename = [projPath, resultsFolder, sfilename, '.mat'];
+	% }}}
+	%GET isSave: 1{{{
+	saveflag = getfieldvalue(options, 'isSave', 1);
+	% }}}
 
 
-% Settings {{{
-vdatafile = [projPath, '/PostProcessing/Results/timeSeries_Obs_onmesh.mat'];
-saveFilename =[projPath, 'PostProcessing/Results/timeSeries_Obs_onmesh_extrap'];
-saveFlag = 1;
-%}}}
 %% load {{{
 % load model with obs constraint front
 org=organizer('repository', [projPath, '/Models/', mdCALFINFolder], 'prefix', ['Model_' glacier '_'], 'steps', [0]);
-disp(['Loading calving front from ', mdCALFINFolder);
-md = loadmodel(org, [stepName]);
+disp(['Loading calving front from ', mdCALFINFolder]);
+md = loadmodel(org, stepName);
 % load obs vel 
 disp(['Loading obs velocity from ', vdatafile]);
 Vdata = load(vdatafile);
@@ -68,8 +76,8 @@ end
 vel_obs = sqrt(vx_obs.^2+vy_obs.^2);
 %}}}
 %% save {{{
-if saveFlag
+if saveflag
 	disp(['Saving to ', saveFilename]);
-	save([saveFilename, '.mat'], 'time', 'vx_obs', 'vy_obs', 'vel_obs');
+	save(saveFilename, 'time', 'vx_obs', 'vy_obs', 'vel_obs');
 end
 %}}}
