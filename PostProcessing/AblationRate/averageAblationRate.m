@@ -20,11 +20,11 @@ function averageAblationRate(varargin)
 	%GET results folder : './PostProcessing/Results/'{{{
 	resultsFolder = getfieldvalue(options,'results folder','./PostProcessing/Results/');
 	% }}}
-	%GET vdata filename: timeSeries_Obs_onmesh{{{
+	%GET data filename: Arates_Obs{{{
 	filename = getfieldvalue(options, 'data filename', 'Arates_Obs');
 	datafile = [projPath, resultsFolder, filename, '.mat'];
 	% }}}
-	%GET save filename: timeSeries_Obs_onmesh_extrap{{{
+	%GET save filename: Arates_Obs_aver{{{
 	sfilename = getfieldvalue(options, 'save filename', 'Arates_Obs_aver');
 	% }}}
 	%GET isSave: 1{{{
