@@ -215,6 +215,7 @@ function x = plotScatterMrate(varargin)
 		Nrows = ceil(Nfigs/Ncols);
 		% separate each year
 		figure('Position', [0,500,1000,800])
+		set(gcf,'color','w');
 		colormap(hsv);
 		x = zeros(Nfigs+1, 3);
 		for i = 1:Nfigs
@@ -267,6 +268,7 @@ function x = plotScatterMrate(varargin)
 		xdata = xdata(nanFlag);
 		ydata = ydata(nanFlag);
 		figure('Position', [1000,500,500,400])
+		set(gcf,'color','w');
 		colormap(hsv);
 		if scatterDensity
 			dscatter(xdata(:), ydata(:));
