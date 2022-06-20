@@ -85,7 +85,7 @@ function x = plotScatterMrate(varargin)
 		disp('    Loading complete');
 
 		if saveFlag
-			nameprefix = [projPath, figuresFolder, sfigurename, num2str(timeWindows(tw))];
+			nameprefix = [projPath, figuresFolder, glacier, '_', sfigurename, num2str(timeWindows(tw))];
 		end
 		if xdataInd < 7
 			time = mdata.time;
