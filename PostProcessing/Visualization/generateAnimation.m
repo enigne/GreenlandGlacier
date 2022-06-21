@@ -20,6 +20,9 @@ function generateAnimation(varargin)
 	%GET figures folder : './PostProcessing/Figures/'{{{
 	figuresFolder = getfieldvalue(options,'figures folder','./PostProcessing/Figures/');
 	% }}}
+	%GET reference md  : 'Param'{{{
+	refmdName = getfieldvalue(options,'reference md','Param');
+	% }}}
 	%GET Id : 0{{{
 	Id = getfieldvalue(options,'Id', 0);
 	% }}}
@@ -61,7 +64,7 @@ function generateAnimation(varargin)
 	% Load simulations from compareToObs.mat
 	outSol = loadData(folderList, 'velocity', [projPath, 'Models/']);
 	% load model
-	md = loadRefMd([projPath, 'Models/'], 'Param');
+	md = loadRefMd([projPath, 'Models/'], refmdName);
 	% Load observation data
 	obsdata = load([projPath, 'PostProcessing/Results/timeSeries_Obs_onmesh.mat']);
 	% Load flowlines
