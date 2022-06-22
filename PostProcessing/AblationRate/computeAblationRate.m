@@ -26,11 +26,11 @@ function computeAblationRate(varargin)
 	%GET CALFIN model{{{
 	mdCALFINFolder = getfieldvalue(options, 'CALFIN model', '');
 	% }}}
-	%GET vdata filename: timeSeries_Obs_onmesh{{{
+	%GET vdata filename: timeSeries_Obs_onmesh_extrap{{{
 	vfilename = getfieldvalue(options, 'vdata filename', 'timeSeries_Obs_onmesh_extrap');
 	vdatafile = [projPath, resultsFolder, vfilename, '.mat'];
 	% }}}
-	%GET save filename: timeSeries_Obs_onmesh_extrap{{{
+	%GET save filename: Arates_Obs{{{
 	sfilename = getfieldvalue(options, 'save filename', 'Arates_Obs');
 	saveFilename = [projPath, resultsFolder, sfilename, '.mat'];
 	% }}}
