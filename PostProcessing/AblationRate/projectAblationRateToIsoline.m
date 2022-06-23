@@ -110,6 +110,8 @@ for tw = 1:length(timeWindows)
 	HC = nan(maxN, Nt);
 	VelC = nan(maxN, Nt);
 	SigmaC = nan(maxN, Nt);
+	XC = nan(maxN, Nt);
+	YC = nan(maxN, Nt);
 	times = repmat([1:Nt], maxN, 1);
 	% project to the new xDist grid
 	for i = 1:Nt
@@ -118,6 +120,8 @@ for tw = 1:length(timeWindows)
 		HC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).HC, xDist, 'linear');
 		VelC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).velC, xDist, 'linear');
 		SigmaC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).sigmaC, xDist, 'linear');
+		XC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).contours.x, xDist, 'linear');
+		YC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).contours.y, xDist, 'linear');
 	end
 	%}}}
 	% cleanup {{{
@@ -141,7 +145,7 @@ for tw = 1:length(timeWindows)
 	if saveFlag
 		saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(tw))];
 		disp(['    Saving to ', saveFilename]);
-	   save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC');
+	   save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC');
 	end
 	%}}}
 end %}}}
