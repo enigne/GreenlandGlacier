@@ -217,7 +217,7 @@ function x = plotScatterMrate(varargin)
 		figure('Position', [0,500,1000,800])
 		set(gcf,'color','w');
 		colormap(hsv);
-		x = zeros(Nfigs+1, 3);
+		x = zeros(Nfigs+1, length(x0));
 		for i = 1:Nfigs
 			subplot(Nrows, Ncols, i);
 			% time sequence
