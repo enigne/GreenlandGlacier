@@ -25,11 +25,7 @@ function analyzeNormalizedArate(varargin)
 	% }}}
 	%GET data filename: Arates_Obs_Isoline{{{
 	filename = getfieldvalue(options, 'data filename', 'Arates_Obs_Isoline');
-	if timeWindow > 0 
-		datafile = [projPath, resultsFolder, filename, '_aver', num2str(timeWindow), '.mat'];
-	else
-		datafile = [projPath, resultsFolder, filename, '.mat'];
-	end
+	datafile = [projPath, resultsFolder, filename, '_aver', num2str(timeWindow), '.mat'];
 	% }}}
 	%GET bed range: [-700, -200] {{{
 	bedRange = getfieldvalue(options, 'bed range', [-700, -200]);
@@ -85,4 +81,5 @@ function analyzeNormalizedArate(varargin)
 	xlabel('bed')
 	ylabel('Normalized aRate')
 	title(['optimal solution: ', num2str(x)])
+	disp(['The optimal parameters are : ', num2str(x, '%.5f, ')])
 	%}}}
