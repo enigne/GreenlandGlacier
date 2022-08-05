@@ -20,14 +20,42 @@ function x = curvefitting(varargin)
 	%GET xmax {{{
 	xmax = getfieldvalue(options,'xmax', 1e3);
 	%}}}
+	%GET mode: meanA{{{
+	datamode = getfieldvalue(options,'mode', 'meanA');
+	%}}}
+	%GET Xrange: [-700, -200] {{{
+	XRange = getfieldvalue(options, 'Xrange', [-700, -200]);
+	% }}}
+	%GET number of x : 100{{{
+	Nx = getfieldvalue(options, 'number of x', 100);
+	% }}}
+	%GET number of bins : 100{{{
+	nbins = getfieldvalue(options, 'number of bins', 100);
+	% }}}
 
+	% Calculate the means{{{
+	if strcmp(datamode, 'meanA')
+		x = linspace(XRange(1), XRange(2), Nx+1);
+		meanA = zeros(1, Nx);
+		stdA = zeros(1, Nx);
+		for i = 1:Nx
+			flag = ((xdata>x(i)) & (xdata<x(i+1)));
+			[N,edges]=histcounts(ydata(flag), nbins);
+			[~, I] = max(N);
+			meanA(i) = mean(ydata(flag), 'omitnan');
+			stdA(i) = std(ydata(flag),'omitnan');
+		end
+		xdata = 0.5*(x(1:end-1)+x(2:end));
+		ydata = meanA;
+	end
+	%}}}
 	% curve fitting
-	nanFlag = ~isnan(xdata);
+	nanFlag = (~isnan(xdata)) & (~isnan(ydata));
 	xdata = xdata(nanFlag);
 	ydata = ydata(nanFlag);
 	obj = @(x) (func(xdata(:),ydata(:), x));
 	options = optimoptions('lsqnonlin','Display','iter','StepTolerance',1e-10,'OptimalityTolerance',1e-10, 'TypicalX', x0,'FunctionTolerance', 1e-10);
-	[x,fval,exitflag,output] = lsqnonlin(obj, x0, [-1,-Inf, -Inf], [0, Inf, Inf], options);
+	[x,fval,exitflag,output] = lsqnonlin(obj, x0, [-2,-Inf, -Inf, -Inf], [2, Inf, Inf, Inf], options);
 
 	% plot
 	hold on

@@ -93,7 +93,7 @@ function projectAblationRateToIsoline(varargin)
 			zeroLS(i).dist = cumsum([0;sqrt(diff(zeroLS(i).contours.x).^2 + diff(zeroLS(i).contours.y).^2)])/1e3;
 			% project to isoline
 			zeroLS(i).HC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,md.results.TransientSolution(i).Thickness,levelx,levely,'default',NaN);
-			zeroLS(i).BedC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,md.geometry.bed,levelx,levely,'default',NaN);
+			zeroLS(i).BedC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,md.results.TransientSolution(i).Base,levelx,levely,'default',NaN);
 			zeroLS(i).aRateC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,aRate(:,i),levelx,levely,'default',NaN);
 			zeroLS(i).velC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,vel(:,i),levelx,levely,'default',NaN);
 			zeroLS(i).sigmaC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,sigmaVM(:,i),levelx,levely,'default',NaN);
