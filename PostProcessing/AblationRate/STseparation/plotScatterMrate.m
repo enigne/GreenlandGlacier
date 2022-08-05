@@ -29,8 +29,8 @@ function x = plotScatterMrate(varargin)
 	%GET save filename: obs_aver{{{
 	sfigurename = getfieldvalue(options, 'save filename', 'obs_aver');
 	% }}}
-	%GET isSave: 1{{{
-	saveFlag = getfieldvalue(options, 'isSave', 1);
+	%GET isSave: 0{{{
+	saveFlag = getfieldvalue(options, 'isSave', 0);
 	% }}}
 	%GET time windows: [0, 12, 30, 60, 90]{{{
 	timeWindows= getfieldvalue(options, 'time windows', [0, 12, 30, 60, 90]);
@@ -41,11 +41,14 @@ function x = plotScatterMrate(varargin)
 	%GET Index of x-axis{{{
 	xdataInd = getfieldvalue(options,'xdata', 1); % 1-BedC, 2-HC, 3-sigmaVMC, 4-velC, 5-Hab, 6-TF, 7-isoline data
 	% }}}
-	%GET xRange {{{
+	%GET xRange : [] {{{
 	xRange = getfieldvalue(options,'xRange', []); 
 	if isempty(xRange)
 		error('need to set the range of x')
 	end
+	% }}}
+	%GET bedRange : [-700, 0] {{{
+	bedRange = getfieldvalue(options,'bed range', [-700,0]); 
 	% }}}
 	%GET x0 {{{
 	x0 = getfieldvalue(options,'x0', []); 
@@ -253,7 +256,7 @@ function x = plotScatterMrate(varargin)
 			ylabel(ylb)
 			caxis([0, 0.5])
 
-			x(i,:) = curvefitting('xdata', xtemp, 'ydata', ytemp, 'x0', x0, 'func', calvingfunc, 'xmin', xmin, 'xmax', xmax);
+			x(i,:) = curvefitting('xdata', xtemp, 'ydata', ytemp, 'x0', x0, 'func', calvingfunc, 'xmin', xmin, 'xmax', xmax, 'Xrange', bedRange);
 		end
 		%save
 		if saveFlag
@@ -284,7 +287,7 @@ function x = plotScatterMrate(varargin)
 		title([num2str(floor(mdata.time(1))), '--', num2str(ceil(mdata.time(end)))]);
 		caxis([0,0.5])
 		% curve fitting {{{
-		x(Nfigs+1,:) = curvefitting('xdata', xdata, 'ydata', ydata, 'x0', x0, 'func', calvingfunc, 'xmin', xmin, 'xmax', xmax);
+		x(Nfigs+1,:) = curvefitting('xdata', xdata, 'ydata', ydata, 'x0', x0, 'func', calvingfunc, 'xmin', xmin, 'xmax', xmax, 'Xrange', bedRange);
 		%}}}	
 		%save
 		if saveFlag
