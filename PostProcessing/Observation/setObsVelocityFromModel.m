@@ -25,7 +25,7 @@ function setObsVelocityFromModel(varargin)
 	%GET CALFIN model{{{
 	mdCALFINFolder = getfieldvalue(options, 'CALFIN model', '');
 	% }}}
-	%GET save filename: timeSeries_Obs_onmesh_extrap{{{
+	%GET save filename: timeSeries_Model_onmesh{{{
 	sfilename = getfieldvalue(options, 'save filename', 'timeSeries_Model_onmesh');
 	saveFilename = [projPath, resultsFolder, sfilename, '.mat'];
 	% }}}
