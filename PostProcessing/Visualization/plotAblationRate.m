@@ -55,7 +55,7 @@ function plotArate(varargin)
 		end
 		% }}}
 		% plot {{{
-		figure('position', [0,500,800,1000])
+		figure('position', [0,800,800,1000])
 		jet0 = [1,1,1;jet()];
 		colormap(jet0)
 		subplot(5,1,1);
@@ -97,7 +97,7 @@ function plotArate(varargin)
 		ylim(yl)
 
 		% max aRate
-		figure('position', [750,500,800,200])
+		figure('position', [0,500,800,200])
 		plot(time, max(aRateC))
 		hold on
 		plot(time, mean(aRateC, 'omitnan'))

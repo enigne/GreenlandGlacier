@@ -39,6 +39,9 @@ function analyzeNormalizedArate(varargin)
 	%GET paramX0 : [0.8, 0.01, 400, 0.5] {{{
 	paramX0 = getfieldvalue(options, 'paramX0', [0.8, 0.01, 400, 0.5]);
 	% }}}
+	%GET figure position : [0.8, 0.01, 400, 0.5] {{{
+	figPos = getfieldvalue(options, 'figure position', [0, 0, 500, 400]);
+	% }}}
 
 	% load model {{{
 	disp(['    Loading ablation rate without smoothing from ', datafile])
@@ -60,7 +63,7 @@ function analyzeNormalizedArate(varargin)
 	end
 	xdata = 0.5*(xbed(1:end-1)+xbed(2:end));
 	ydata = meanA;
-	figure
+	figure('Position', figPos)
 	errorbar(xdata, ydata, stdA)
 	ylim([0,1.2])
 	hold on
@@ -77,9 +80,10 @@ function analyzeNormalizedArate(varargin)
 	%}}}
 	% plot{{{
 	plot(xfit, yfit, 'k.','LineWidth', 1);
-	ylim([0,1])
+	ylim([0, 1])
+	xlim([bedRange(1)-100, 0])
 	xlabel('bed')
 	ylabel('Normalized aRate')
-	title(['optimal solution: ', num2str(x)])
+	title(['mw=',num2str(timeWindow), ', optimal: ', num2str(x)])
 	disp(['The optimal parameters are : ', num2str(x, '%.5f, ')])
 	%}}}
