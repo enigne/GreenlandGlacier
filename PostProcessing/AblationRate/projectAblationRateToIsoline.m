@@ -47,6 +47,9 @@ function projectAblationRateToIsoline(varargin)
 	%GET branch threshold: 0{{{
 	branchThreshold = getfieldvalue(options, 'branch threshold', 0);
 	% }}}
+	%GET dataname: cmRates{{{
+	dataname = getfieldvalue(options, 'dataname', 'cmRates');
+	% }}}
 
 	% load model {{{
 	org=organizer('repository', [projPath, '/Models/', mdCALFINFolder], 'prefix', ['Model_' glacier '_'], 'steps', 0);
@@ -68,7 +71,13 @@ function projectAblationRateToIsoline(varargin)
 		disp(['    Loading the frontal ablation rate from ', aratedatafile]);
 		aratedata = load([aratedatafile, '.mat']);
 		aRtime = aratedata.time;
-		aRate = aratedata.cmRates;
+		if strcmp(dataname, 'cmRates')
+			aRate = aratedata.cmRates;
+		elseif strcmp(dataname, 'sigmaMax')
+			aRate = aratedata.sigmaMax;
+		else 
+			error('unknown dataname')
+		end
 		%% process data {{{
 		zeroLS = '';
 		disp('    Projecting the ablation rate to isoline')
@@ -155,8 +164,18 @@ function projectAblationRateToIsoline(varargin)
 		%% save {{{
 		if saveFlag
 			saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(tw))];
-			disp(['    Saving to ', saveFilename]);
-			save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC');
+			if strcmp(dataname, 'cmRates')
+				disp(['    Saving aRateC to ', saveFilename]);
+				save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC');
+			elseif strcmp(dataname, 'sigmaMax')
+				sigmaMaxC = aRateC;
+				maxSigmaMaxC = maxArateC;
+				meanSigmaMaxC = meanArateC;
+				disp(['    Saving sigmaMaxC to ', saveFilename]);
+				save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'XC', 'YC');
+			else 
+				error('unknown dataname')
+			end
 		end
 		%}}}
 	end %}}}

@@ -1,6 +1,7 @@
 % To compute ablation rate from the observed calving front position
-% 
-% Last Modified: 2022-06-19
+%  - averaging sigmaMax is added by 20220812
+%
+% Last Modified: 2022-08-12
 
 function averageAblationRate(varargin)
 	%Check inputs {{{
