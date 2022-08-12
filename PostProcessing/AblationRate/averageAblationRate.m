@@ -33,6 +33,9 @@ function averageAblationRate(varargin)
 	%GET time windows: [12, 30, 60, 90]{{{
 	timeWindows= getfieldvalue(options, 'time windows', [12,30,60,90]);
 	% }}}
+	%GET dataname: cmRates{{{
+	dataname = getfieldvalue(options, 'dataname', 'cmRates');
+	% }}}
 
 %% load model {{{
 disp(['    Loading ablation rate without smoothing from ', datafile])
@@ -40,16 +43,32 @@ nsdata=load(datafile);
 %}}}
 % moving average{{{
 for i = 1: length(timeWindows)
-	disp(['    Averaging ablation rate with time window=', num2str(timeWindows(i))]);
-	smoothdata = movingAverage([nsdata.cmRates;nsdata.time], 'time window', timeWindows(i), 'resample', 0);
-	cmRates = smoothdata(1:end-1,:);
+	if strcmp(dataname, 'cmRates')
+		disp(['    Averaging ablation rate with time window=', num2str(timeWindows(i))]);
+		smoothdata = movingAverage([nsdata.cmRates;nsdata.time], 'time window', timeWindows(i), 'resample', 0);
+		cmRates = smoothdata(1:end-1,:);
+	elseif strcmp(dataname, 'sigmaMax')
+		disp(['    Averaging sigma_max with time window=', num2str(timeWindows(i))]);
+		smoothdata = movingAverage([nsdata.sigmaMax;nsdata.time], 'time window', timeWindows(i), 'resample', 0);
+		sigmaMax = smoothdata(1:end-1,:);
+	else
+		error('unknown dataname')
+	end
 	time = smoothdata(end,:);
 
 	% save 
 	if saveFlag
 		saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(i)), '.mat'];
-		disp(['    Saving to ', saveFilename]);
-		save([saveFilename], 'cmRates', 'time');
+
+		if strcmp(dataname, 'cmRates')
+			disp(['    Saving ablation rate to ', saveFilename]);
+			save([saveFilename], 'cmRates', 'time');
+		elseif strcmp(dataname, 'sigmaMax')
+			disp(['    Saving sigma_max to ', saveFilename]);
+			save([saveFilename], 'sigmaMax', 'time');
+		else
+			error('unknown dataname')
+		end
 	end
 end
 %}}}
