@@ -32,14 +32,17 @@ function plotArate(varargin)
 	%GET bed range{{{
 	bedRange= getfieldvalue(options, 'bed range', []);
 	% }}}
-	%GET parameterization range{{{
-	aParamRange = getfieldvalue(options, 'parameterization range', []);
+	%GET parameter name: Arate{{{
+	paramName = getfieldvalue(options, 'parameter name', 'Arate');
+	% }}}
+	%GET parameter range{{{
+	rateRange = getfieldvalue(options, 'parameter range', [0, 8e4]);
+	% }}}
+	%GET parameterization range(for rate/bed){{{
+	paramRange = getfieldvalue(options, 'parameterization range', []);
 	% }}}
 	%GET velocity range{{{
 	velRange = getfieldvalue(options, 'velocity range', [0, 1e4]);
-	% }}}
-	%GET ablation rate range{{{
-	aRateRange = getfieldvalue(options, 'ablation rate range', [0, 8e4]);
 	% }}}
 
 	% process each time window averaged data{{{
@@ -49,7 +52,18 @@ function plotArate(varargin)
 		disp(['    Loading isoline data from ', datafile])
 		load(datafile);
 		% process data
-		NaRateC = aRateC ./ maxArateC;
+		if strcmp(paramName, 'Arate')
+			paramRate = aRateC;
+			maxParamRate = maxArateC;
+		elseif strcmp(paramName, 'SigmaMax')
+			paramRate = 1./sigmaMaxC;
+			maxParamRate = max(paramRate);
+		else
+			error('unknown parameter name')
+		end
+
+		normalizedRateC = paramRate ./ maxParamRate;
+
 		if isempty(yl)
 			yl = [min(xDist), max(xDist)];
 		end
@@ -59,8 +73,8 @@ function plotArate(varargin)
 		jet0 = [1,1,1;jet()];
 		colormap(jet0)
 		subplot(5,1,1);
-		imagesc(time, xDist, NaRateC)
-		title('Normalized aRate')
+		imagesc(time, xDist, normalizedRateC)
+		title('Normalized Rate')
 		colorbar
 		ylim(yl)
 
@@ -74,12 +88,12 @@ function plotArate(varargin)
 		end
 
 		subplot(5,1,3);
-		imagesc(time, xDist, NaRateC./(-BedC))
-		title('aRate/(Depth)')
+		imagesc(time, xDist, normalizedRateC./(-BedC))
+		title('NRate/(Depth)')
 		colorbar
 		ylim(yl)
-		if ~isempty(aParamRange)
-			caxis(aParamRange)
+		if ~isempty(paramRange)
+			caxis(paramRange)
 		end
 
 		subplot(5,1,4);
@@ -98,11 +112,12 @@ function plotArate(varargin)
 
 		% max aRate
 		figure('position', [0,500,800,200])
-		plot(time, max(aRateC))
+		semilogy(time, maxParamRate)
 		hold on
-		plot(time, mean(aRateC, 'omitnan'))
-		title('Max aRate')
+		semilogy(time, mean(paramRate, 'omitnan'))
+		title('Max Rate')
 		xlim([min(time), max(time)])
-		ylim(aRateRange)
+		ylim(rateRange)
 		legend({'max','mean'})
 	end % }}}
+	%}}}
