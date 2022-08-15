@@ -20,6 +20,9 @@ function analyzeNormalizedArate(varargin)
 	%GET results folder : './PostProcessing/Results/'{{{
 	resultsFolder = getfieldvalue(options,'results folder','./PostProcessing/Results/');
 	% }}}
+	%GET function handler {{{
+	func = getfieldvalue(options,'function handler', @calvingTanh);
+	%}}}
 	%GET time windows: 0{{{
 	timeWindow = getfieldvalue(options, 'time windows', 0);
 	% }}}
@@ -72,11 +75,11 @@ function analyzeNormalizedArate(varargin)
 	nanFlag = (~isnan(xdata)) & (~isnan(ydata));
 	xdata = xdata(nanFlag);
 	ydata = ydata(nanFlag);
-	obj = @(x) (calvingTanh(xdata(:),ydata(:), x));
+	obj = @(x) (func(xdata(:),ydata(:), x));
 	options = optimoptions('lsqnonlin','Display','iter','StepTolerance',1e-10,'OptimalityTolerance',1e-10, 'TypicalX', paramX0,'FunctionTolerance', 1e-10);
-	[x,fval,exitflag,output] = lsqnonlin(obj, paramX0, [-2,-Inf, -Inf, -Inf], [2, Inf, Inf, Inf], options);
+	[x,fval,exitflag,output] = lsqnonlin(obj, paramX0, [-10,-Inf, -Inf, -Inf], [10, Inf, Inf, Inf], options);
 	xfit = linspace(bedRange(1)-100, bedRange(2)+100, Nx*5);
-	yfit = calvingTanh(xfit, 0, x);
+	yfit = func(xfit, 0, x);
 	%}}}
 	% plot{{{
 	plot(xfit, yfit, 'k.','LineWidth', 1);

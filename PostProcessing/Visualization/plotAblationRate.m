@@ -88,8 +88,10 @@ function plotArate(varargin)
 		end
 
 		subplot(5,1,3);
-		imagesc(time, xDist, normalizedRateC./(-BedC))
-		title('NRate/(Depth)')
+%		imagesc(time, xDist, normalizedRateC./(-BedC))
+		imagesc(time, xDist, VelC.*SigmaC.*normalizedRateC./normalizedRateC)
+		%title('NRate/(Depth)')
+		title('Vel*SigmaVM')
 		colorbar
 		ylim(yl)
 		if ~isempty(paramRange)
@@ -115,9 +117,10 @@ function plotArate(varargin)
 		semilogy(time, maxParamRate)
 		hold on
 		semilogy(time, mean(paramRate, 'omitnan'))
+		semilogy(time, min(paramRate))
 		title('Max Rate')
 		xlim([min(time), max(time)])
 		ylim(rateRange)
-		legend({'max','mean'})
+		legend({'max','mean','min'})
 	end % }}}
 	%}}}

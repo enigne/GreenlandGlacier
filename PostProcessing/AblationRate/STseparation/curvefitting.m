@@ -55,7 +55,7 @@ function x = curvefitting(varargin)
 	ydata = ydata(nanFlag);
 	obj = @(x) (func(xdata(:),ydata(:), x));
 	options = optimoptions('lsqnonlin','Display','iter','StepTolerance',1e-10,'OptimalityTolerance',1e-10, 'TypicalX', x0,'FunctionTolerance', 1e-10);
-	[x,fval,exitflag,output] = lsqnonlin(obj, x0, [-2,-Inf, -Inf, -Inf], [2, Inf, Inf, Inf], options);
+	[x,fval,exitflag,output] = lsqnonlin(obj, x0, [-10,-Inf, -Inf, -Inf], [10, Inf, Inf, Inf], options);
 
 	% plot
 	hold on
