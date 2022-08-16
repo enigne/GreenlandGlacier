@@ -45,6 +45,9 @@ function generateAnimation(varargin)
 	%GET load obs : true {{{
 	flagObs = getfieldvalue(options,'load obs', 1);
 	% }}}
+	%GET load no interpolated obs : true {{{
+	loadNoInterpObs = getfieldvalue(options,'load no interp obs', 1);
+	% }}}
 	%GET xlim and ylim : []{{{
 	xl = getfieldvalue(options,'xlim', []);
 	yl = getfieldvalue(options,'ylim', []);
@@ -55,12 +58,6 @@ function generateAnimation(varargin)
 
 	%% Load data {{{
 	[folderList, titleList] = getFolderList(Id, flagObs);
-
-	% change the name, since we are going to use the ref model for the calving front position only
-	if flagObs 
-		titleList(1) = {'Observation'};
-	end
-
 	% Load simulations from compareToObs.mat
 	outSol = loadData(folderList, 'velocity', [projPath, 'Models/']);
 	% load model
@@ -75,11 +72,23 @@ function generateAnimation(varargin)
 	vy = cellfun(@(x)x.vy, {outSol{:}}, 'UniformOutput', 0);
 	icemask = cellfun(@(x)x.ice_levelset, {outSol{:}}, 'UniformOutput', 0);
 
-	% put obs at the beginning
-	if flagObs
+	% change the name, since we are going to use the ref model for the calving front position only
+	if flagObs 
+		titleList(1) = {'Observation'};
+		% put obs at the beginning
 		vx(1) = {obsdata.vx_obs};
 		vy(1) = {obsdata.vy_obs};
 		time = outSol{2}.time;
+		% load the raw obs data
+		if loadNoInterpObs
+			rawobsdata = load([projPath, 'PostProcessing/Results/timeSeries_Obs_mapped.mat']);
+			% duplicate the first icemask 
+			icemask = {icemask{1}, icemask{:}};
+			% insert vx and vy to the second place
+			vx = {vx{1}, rawobsdata.vx_obs, vx{2:end}};
+			vy = {vy{1}, rawobsdata.vy_obs, vy{2:end}};
+			titleList = {titleList{1}, 'Obs without interpolation',  titleList{2:end}};
+		end
 	else
 		time = outSol{1}.time;
 	end
