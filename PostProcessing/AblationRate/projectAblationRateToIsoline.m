@@ -170,7 +170,6 @@ function projectAblationRateToIsoline(varargin)
 		aRateC(nanflag) = nan;
 		BedC(nanflag) = nan;
 		HC(nanflag) = nan;
-		timeC(nanflag) = nan;
 		maxArateC = max(aRateC);
 		meanArateC = mean(aRateC, 'omitnan');
 		% if maxArateC has nan, change it to 0
@@ -182,13 +181,13 @@ function projectAblationRateToIsoline(varargin)
 			saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(tw))];
 			if strcmp(dataname, 'cmRates')
 				disp(['    Saving aRateC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
+				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
 			elseif strcmp(dataname, 'sigmaMax')
 				sigmaMaxC = aRateC;
 				maxSigmaMaxC = maxArateC;
 				meanSigmaMaxC = meanArateC;
 				disp(['    Saving sigmaMaxC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'timeC', 'HC', 'BedC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
+				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
 			else 
 				error('unknown dataname')
 			end

@@ -90,7 +90,7 @@ function x = plotScatterMrate(varargin)
 		if saveFlag
 			nameprefix = [projPath, figuresFolder, glacier, '_', sfigurename, num2str(timeWindows(tw))];
 		end
-		if xdataInd < 7
+		if xdataInd ~= 7
 			time = mdata.time;
 			Ntime = length(mdata.time);
 			Nyear = floor(Ntime/timestepInyear);
@@ -111,6 +111,21 @@ function x = plotScatterMrate(varargin)
 			name = 'bed';
 			%x0 = [0.8, 200, 450];
 			%x0 = [-0.1, 400, 450];
+		elseif xdataInd ==10 % normalized vel
+			disp('   Use normalized velocity for x-axis');
+			xdata = mdata.VelC./max(mdata.VelC);
+			xmin = xRange(1);
+			xmax = xRange(2);
+			xlb = 'normalized vel';
+			name = 'norm_vel';
+		elseif xdataInd ==11 % truncated vel
+			disp('   Use truncated velocity for x-axis');
+			threshold = 8000;
+			xdata = min(1, mdata.VelC./threshold);
+			xmin = xRange(1);
+			xmax = xRange(2);
+			xlb = 'truncated vel';
+			name = 'trun_vel';
 		elseif xdataInd == 2
 			disp('   Use ice thickness for x-axis');
 			xdata = mdata.HC;
@@ -128,7 +143,7 @@ function x = plotScatterMrate(varargin)
 			x0 = [55, 2e6, -5e6];
 		elseif xdataInd == 4
 			disp('   Use surface velocity for x-axis');
-			xdata = mdata.velC;
+			xdata = mdata.VelC;
 			xmin = min(xdata(:));	xmax = max(xdata(:));
 			xlb = 'vel (m/a)';
 			name = 'vel';
