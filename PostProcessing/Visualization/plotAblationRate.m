@@ -51,66 +51,73 @@ function plotArate(varargin)
 		datafile = [projPath, resultsFolder, datafilename, num2str(timeWindows(i)), '.mat'];
 		disp(['    Loading isoline data from ', datafile])
 		load(datafile);
+
 		% process data
-		if strcmp(paramName, 'Arate')
-			paramRate = aRateC;
-			maxParamRate = maxArateC;
-		elseif strcmp(paramName, 'SigmaMax')
+		if strcmp(paramName, 'SigmaMax')
 			paramRate = 1./sigmaMaxC;
 			maxParamRate = max(paramRate);
+			xData{1} =  paramRate ./ maxParamRate;
+			xRange{1} = [0,1];
+			xTitle{1} = 'Normalized sigmaMax';
 		else
-			error('unknown parameter name')
+			paramRate = aRateC;
+			maxParamRate = maxArateC;
+			xData{1} =  paramRate ./ maxParamRate;
+			xRange{1} = [0,1];
+			xTitle{1} = 'Normalized ablation rate';
 		end
 
-		normalizedRateC = paramRate ./ maxParamRate;
+		% general settings {{{
+		% 2 - water depth 
+		xData{2} = -BedC;
+		xRange{2} = bedRange;
+		xTitle{2} = 'Depth';
+		% 3 - x{1} / x{2} 
+		xData{3} =  xData{1}./xData{2};
+		xRange{3} = paramRange;
+		xTitle{3} = [xTitle{1}, '/', xTitle{2}];
+		% 4 - Velocity 
+		xData{4} = VelC;
+		xRange{4} = velRange;
+		xTitle{4} = 'Velocity';
+		% 5 - Sigma 
+		xData{5} = SigmaC;
+		xRange{5} = [0, 1e6];
+		xTitle{5} = 'Sigma';
 
+		if strcmp(paramName, 'Strainrate')
+			% 5 - Strainrate 
+			xData{5} = -log(abs(StrainRateparallelC))/log(10);
+			xRange{5} = [7, 8.5];
+			xTitle{5} = 'StrainrateParallel';
+			
+			% 6 - Strainrate 
+			xData{6} = -log(abs(StrainRateperpendicularC))/log(10);
+			xRange{6} = [6, 10];
+			xTitle{6} = 'StrainratePerpend';
+		end
+		Ndata = length(xData);
 		if isempty(yl)
 			yl = [min(xDist), max(xDist)];
 		end
-		% }}}
+		%}}}
+		%}}}
 		% plot {{{
 		figure('position', [0,800,800,1000])
+		% set nan and 0 to white
 		jet0 = [1,1,1;jet()];
 		colormap(jet0)
-		subplot(5,1,1);
-		imagesc(time, xDist, normalizedRateC)
-		title('Normalized Rate')
-		colorbar
-		ylim(yl)
 
-		subplot(5,1,2);
-		imagesc(time, xDist, -BedC)
-		title('Depth')
-		colorbar
-		ylim(yl)
-		if ~isempty(bedRange)
-			caxis(bedRange)
+		for i = 1: Ndata
+			subplot(Ndata,1,i);
+			imagesc(time, xDist, xData{i})
+			title(xTitle{i})
+			colorbar
+			ylim(yl)
+			if ~isempty(xRange{i})
+				caxis(xRange{i});
+			end
 		end
-
-		subplot(5,1,3);
-%		imagesc(time, xDist, normalizedRateC./(-BedC))
-		imagesc(time, xDist, VelC.*SigmaC.*normalizedRateC./normalizedRateC)
-		%title('NRate/(Depth)')
-		title('Vel*SigmaVM')
-		colorbar
-		ylim(yl)
-		if ~isempty(paramRange)
-			caxis(paramRange)
-		end
-
-		subplot(5,1,4);
-		imagesc(time, xDist, VelC)
-		title('Velocity')
-		colorbar
-		caxis(velRange)
-		ylim(yl)
-
-		subplot(5,1,5);
-		imagesc(time, xDist, SigmaC)
-		title('Sigma')
-		colorbar
-		caxis([0,1e6])
-		ylim(yl)
 
 		% max aRate
 		figure('position', [0,500,800,200])
