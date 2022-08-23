@@ -45,13 +45,36 @@ function analyzeNormalizedArate(varargin)
 	%GET figure position : [0.8, 0.01, 400, 0.5] {{{
 	figPos = getfieldvalue(options, 'figure position', [0, 0, 500, 400]);
 	% }}}
+	%GET Index of x-axis{{{
+	xdataInd = getfieldvalue(options,'xdata', 1); % 1-BedC, 2-HC, 3-sigmaVMC, 4-velC, 5-Hab, 6-TF, 7-isoline data
+	% }}}
 
 	% load model {{{
 	disp(['    Loading ablation rate without smoothing from ', datafile])
 	nsdata=load(datafile);
 	nAc = nsdata.aRateC ./ nsdata.maxArateC;
-	Bed =  nsdata.BedC(:);
 	Ac = nAc(:);
+	if xdataInd == 1
+		disp('   Use bed elevation for x-axis');
+		Bed =  nsdata.BedC(:);
+		xname = 'Bed';
+	elseif xdataInd ==2 % normalized vel
+		disp('   Use normalized velocity for x-axis');
+		Bed =  nsdata.VelC./max(nsdata.VelC);
+		bedRange(1) = 0;
+		bedRange(2) = 1;
+		xname = 'normalized vel';
+	elseif xdataInd ==3 % truncated vel
+		disp('   Use truncated velocity for x-axis');
+		threshold = 8000;
+		Bed = min(1, nsdata.VelC./threshold);
+		bedRange(1) = 0;
+		bedRange(2) = 1;
+		xname = 'truncated vel';
+	else
+		error('missing xdata');
+	end
+	Bed = Bed(:);
 	%}}}
 	% Calculate the means{{{
 	xbed = linspace(bedRange(1), bedRange(2), Nx+1);
@@ -78,14 +101,14 @@ function analyzeNormalizedArate(varargin)
 	obj = @(x) (func(xdata(:),ydata(:), x));
 	options = optimoptions('lsqnonlin','Display','iter','StepTolerance',1e-10,'OptimalityTolerance',1e-10, 'TypicalX', paramX0,'FunctionTolerance', 1e-10, 'MaxFunctionEvaluations', 1000);
 	[x,fval,exitflag,output] = lsqnonlin(obj, paramX0, [-2,-Inf, -Inf, -Inf], [2, Inf, Inf, Inf], options);
-	xfit = linspace(bedRange(1)-100, bedRange(2)+100, Nx*5);
+	xfit = linspace(bedRange(1), bedRange(2), Nx*5);
 	yfit = func(xfit, 0, x);
 	%}}}
 	% plot{{{
 	plot(xfit, yfit, 'k.','LineWidth', 1);
 	ylim([0, 1])
-	xlim([bedRange(1)-100, 0])
-	xlabel('bed')
+	xlim([bedRange(1), bedRange(2)])
+	xlabel(xname)
 	ylabel('Normalized aRate')
 	title(['mw=',num2str(timeWindow), ', optimal: ', num2str(x)])
 	disp(['The optimal parameters are : ', num2str(x, '%.5f, ')])
