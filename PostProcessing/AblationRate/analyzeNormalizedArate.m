@@ -58,16 +58,24 @@ function analyzeNormalizedArate(varargin)
 		disp('   Use bed elevation for x-axis');
 		Bed =  nsdata.BedC(:);
 		xname = 'Bed';
-	elseif xdataInd ==2 % normalized vel
+	elseif xdataInd == 2 % normalized vel
 		disp('   Use normalized velocity for x-axis');
 		Bed =  nsdata.VelC./max(nsdata.VelC);
 		bedRange(1) = 0;
 		bedRange(2) = 1;
 		xname = 'normalized vel';
-	elseif xdataInd ==3 % truncated vel
+	elseif xdataInd == 3 % truncated vel
 		disp('   Use truncated velocity for x-axis');
 		threshold = 8000;
 		Bed = min(1, nsdata.VelC./threshold);
+		bedRange(1) = 0;
+		bedRange(2) = 1;
+		xname = 'truncated vel';
+	elseif xdataInd == 4 % vel
+		disp('   Use velocity for x-axis');
+		upperbound = 8000;
+		lowerbound = 100;
+		Bed = (min(upperbound, max(lowerbound, nsdata.VelC))-lowerbound)/upperbound;
 		bedRange(1) = 0;
 		bedRange(2) = 1;
 		xname = 'truncated vel';
