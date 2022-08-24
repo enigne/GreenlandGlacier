@@ -73,7 +73,7 @@ function analyzeNormalizedArate(varargin)
 		xname = 'truncated vel';
 	elseif xdataInd == 4 % vel
 		disp('   Use velocity for x-axis');
-		upperbound = 8000;
+		upperbound = 10000;
 		lowerbound = 100;
 		Bed = (min(upperbound, max(lowerbound, nsdata.VelC))-lowerbound)/upperbound;
 		bedRange(1) = 0;
