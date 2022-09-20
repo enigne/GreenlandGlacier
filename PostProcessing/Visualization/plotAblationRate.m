@@ -59,6 +59,12 @@ function plotArate(varargin)
 			xData{1} =  paramRate ./ maxParamRate;
 			xRange{1} = [0,1];
 			xTitle{1} = 'Normalized sigmaMax';
+		elseif strcmp(paramName, 'sidewall')
+			paramRate = sidewallDistC;
+			maxParamRate = max(paramRate);
+			xData{1} =  paramRate ./ maxParamRate;
+			xRange{1} = [0,1];
+			xTitle{1} = 'Distance to the sidewall';
 		else
 			paramRate = aRateC;
 			maxParamRate = maxArateC;

@@ -1,6 +1,6 @@
 % To compute the parameterization using ablation rate
 % 
-% Last Modified: 2022-08-04
+% Last Modified: 2022-09-20
 
 function analyzeNormalizedArate(varargin)
 	%Check inputs {{{
@@ -79,6 +79,12 @@ function analyzeNormalizedArate(varargin)
 		bedRange(1) = 0;
 		bedRange(2) = 1;
 		xname = 'truncated vel';
+	elseif xdataInd == 5 % distance to the sidewall
+		disp('   Use distance to the side wall for x-axis');
+		Bed = nsdata.sidewallDistC;
+		bedRange(1) = 0;
+		bedRange(2) = max(Bed(:));
+		xname = 'distance to sidewall';
 	else
 		error('missing xdata');
 	end
