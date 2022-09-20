@@ -60,6 +60,14 @@ function projectAblationRateToIsoline(varargin)
 	Nt = length(time); % time steps of the mask
 	vel = cell2mat({md.results.TransientSolution(:).Vel});
 	sigmaVM = cell2mat({md.results.TransientSolution(:).SigmaVM});
+
+	% compute sidewall distance using levelset function
+	sidewall_levelset = zeros(md.mesh.numberofvertices,1);
+	pos = (md.geometry.bed>0); sidewall_levelset(pos) = -1;
+	pos = (md.geometry.bed<0); sidewall_levelset(pos) = 1;
+	sidewall_levelset = reinitializelevelset(md, sidewall_levelset);
+
+	% strain rate
 	strainrateFlag = isfield(md.results.TransientSolution, 'StrainRateparallel');
 	if strainrateFlag
 		disp('    Loading strain rate solutions'); 
@@ -112,6 +120,7 @@ function projectAblationRateToIsoline(varargin)
 			zeroLS(i).aRateC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,aRate(:,i),levelx,levely,'default',NaN);
 			zeroLS(i).velC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,vel(:,i),levelx,levely,'default',NaN);
 			zeroLS(i).sigmaC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,sigmaVM(:,i),levelx,levely,'default',NaN);
+			zeroLS(i).sidewallDistC = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,sidewall_levelset,levelx,levely,'default',NaN);
 			if strainrateFlag
 				zeroLS(i).StrainRateparallel = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,StrainRateparallel(:,i),levelx,levely,'default',NaN);
 				zeroLS(i).StrainRateperpendicular = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,StrainRateperpendicular(:,i),levelx,levely,'default',NaN);
@@ -135,6 +144,7 @@ function projectAblationRateToIsoline(varargin)
 		HC = nan(maxN, Nt);
 		VelC = nan(maxN, Nt);
 		SigmaC = nan(maxN, Nt);
+		sidewallDistC = nan(maxN, Nt);
 		StrainRateparallelC = nan(maxN, Nt);
 		StrainRateperpendicularC = nan(maxN, Nt);
 		XC = nan(maxN, Nt);
@@ -147,6 +157,7 @@ function projectAblationRateToIsoline(varargin)
 			HC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).HC, xDist, 'linear');
 			VelC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).velC, xDist, 'linear');
 			SigmaC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).sigmaC, xDist, 'linear');
+			sidewallDistC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).sidewallDistC, xDist, 'linear');
 			if strainrateFlag
 				StrainRateparallelC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).StrainRateparallel, xDist, 'linear');
 				StrainRateperpendicularC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).StrainRateperpendicular, xDist, 'linear');
@@ -181,13 +192,13 @@ function projectAblationRateToIsoline(varargin)
 			saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(tw))];
 			if strcmp(dataname, 'cmRates')
 				disp(['    Saving aRateC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
+				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'sidewallDistC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
 			elseif strcmp(dataname, 'sigmaMax')
 				sigmaMaxC = aRateC;
 				maxSigmaMaxC = maxArateC;
 				meanSigmaMaxC = meanArateC;
 				disp(['    Saving sigmaMaxC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
+				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'sidewallDistC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
 			else 
 				error('unknown dataname')
 			end
