@@ -82,8 +82,12 @@ function analyzeNormalizedArate(varargin)
 	elseif xdataInd == 5 % distance to the sidewall
 		disp('   Use distance to the side wall for x-axis');
 		Bed = nsdata.sidewallDistC;
-		bedRange(1) = 0;
-		bedRange(2) = max(Bed(:));
+		% by default
+		if bedRange(2) < 0
+			disp('   Use default range for x-axis');
+			bedRange(1) = 0;
+			bedRange(2) = max(Bed(:));
+		end
 		xname = 'distance to sidewall';
 	else
 		error('missing xdata');
