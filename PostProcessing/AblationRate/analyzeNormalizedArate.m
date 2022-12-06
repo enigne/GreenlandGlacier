@@ -54,6 +54,9 @@ function analyzeNormalizedArate(varargin)
 	%GET showCurveFit : 1{{{
 	showCurveFit = getfieldvalue(options,'show curve fit', 1); 
 	% }}}
+	%GET color : 1{{{
+	color = getfieldvalue(options,'color', []); 
+	% }}}
 
 	% load model {{{
 	disp(['    Loading ablation rate without smoothing from ', datafile])
@@ -113,7 +116,11 @@ function analyzeNormalizedArate(varargin)
 	xdata = 0.5*(xbed(1:end-1)+xbed(2:end));
 	ydata = meanA;
 	figure('Position', figPos)
-	errorbar(xdata, ydata, stdA, 'LineWidth', 1.5)
+	if isempty(color)
+		errorbar(xdata, ydata, stdA, 'LineWidth', 1.5)
+	else
+		errorbar(xdata, ydata, stdA, 'LineWidth', 1.5, 'color', color)
+	end
 	ylim([0,1.2])
 	hold on
 	%}}}
@@ -129,7 +136,7 @@ function analyzeNormalizedArate(varargin)
 	%}}}
 	% plot{{{
 	if showCurveFit
-		plot(xfit, yfit, 'r','LineWidth', 1);
+		plot(xfit, yfit, 'k', 'LineWidth', 1);
 	end
 	ylim([0, 1])
 	xlim([bedRange(1), bedRange(2)])
