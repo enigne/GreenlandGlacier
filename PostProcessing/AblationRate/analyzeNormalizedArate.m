@@ -48,6 +48,9 @@ function analyzeNormalizedArate(varargin)
 	%GET Index of x-axis{{{
 	xdataInd = getfieldvalue(options,'xdata', 1); % 1-BedC, 2-HC, 3-sigmaVMC, 4-velC, 5-Hab, 6-TF, 7-isoline data
 	% }}}
+	%GET title : ''{{{
+	titleText = getfieldvalue(options,'title', ''); 
+	% }}}
 
 	% load model {{{
 	disp(['    Loading ablation rate without smoothing from ', datafile])
@@ -57,7 +60,7 @@ function analyzeNormalizedArate(varargin)
 	if xdataInd == 1
 		disp('   Use bed elevation for x-axis');
 		Bed =  nsdata.BedC(:);
-		xname = 'Bed';
+		xname = 'Bed elevation (m)';
 	elseif xdataInd == 2 % normalized vel
 		disp('   Use normalized velocity for x-axis');
 		Bed =  nsdata.VelC./max(nsdata.VelC);
@@ -108,7 +111,7 @@ function analyzeNormalizedArate(varargin)
 	xdata = 0.5*(xbed(1:end-1)+xbed(2:end));
 	ydata = meanA;
 	figure('Position', figPos)
-	errorbar(xdata, ydata, stdA)
+	errorbar(xdata, ydata, stdA, 'LineWidth', 1.5)
 	ylim([0,1.2])
 	hold on
 	%}}}
@@ -123,11 +126,16 @@ function analyzeNormalizedArate(varargin)
 	yfit = func(xfit, 0, x);
 	%}}}
 	% plot{{{
-	plot(xfit, yfit, 'k.','LineWidth', 1);
+	plot(xfit, yfit, 'r','LineWidth', 1);
 	ylim([0, 1])
 	xlim([bedRange(1), bedRange(2)])
 	xlabel(xname)
-	ylabel('Normalized aRate')
-	title(['mw=',num2str(timeWindow), ', optimal: ', num2str(x)])
+	ylabel('Normalized frontal ablation rate')
+	if isempty(titleText)
+		title(['mw=',num2str(timeWindow), ', optimal: ', num2str(x)])
+	else
+		title(titleText)
+	end
+
 	disp(['The optimal parameters are : ', num2str(x, '%.5f, ')])
 	%}}}
