@@ -81,10 +81,9 @@ function analyzeNormalizedArate(varargin)
 		disp('   Use velocity for x-axis');
 		upperbound = 8000;
 		lowerbound = 100;
-		Bed = (min(upperbound, max(lowerbound, nsdata.VelC))-lowerbound)/(upperbound-lowerbound);
-		bedRange(1) = 0;
-		bedRange(2) = 1;
-		xname = 'truncated vel';
+		%Bed = (min(upperbound, max(lowerbound, nsdata.VelC))-lowerbound)/(upperbound-lowerbound);
+		Bed = nsdata.HC - 1023/917*(0-nsdata.BedC);
+		xname = 'Height above flotation (m)';
 	elseif xdataInd == 5 % distance to the sidewall
 		disp('   Use distance to the side wall for x-axis');
 		Bed = nsdata.sidewallDistC;
