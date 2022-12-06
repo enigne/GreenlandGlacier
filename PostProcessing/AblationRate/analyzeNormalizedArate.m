@@ -1,6 +1,6 @@
 % To compute the parameterization using ablation rate
 % 
-% Last Modified: 2022-09-20
+% Last Modified: 2022-12-06
 
 function analyzeNormalizedArate(varargin)
 	%Check inputs {{{
@@ -51,6 +51,9 @@ function analyzeNormalizedArate(varargin)
 	%GET title : ''{{{
 	titleText = getfieldvalue(options,'title', ''); 
 	% }}}
+	%GET showCurveFit : 1{{{
+	showCurveFit = getfieldvalue(options,'show curve fit', 1); 
+	% }}}
 
 	% load model {{{
 	disp(['    Loading ablation rate without smoothing from ', datafile])
@@ -91,7 +94,7 @@ function analyzeNormalizedArate(varargin)
 			bedRange(1) = 0;
 			bedRange(2) = max(Bed(:));
 		end
-		xname = 'distance to sidewall';
+		xname = 'Distance to sidewall (m)';
 	else
 		error('missing xdata');
 	end
@@ -126,7 +129,9 @@ function analyzeNormalizedArate(varargin)
 	yfit = func(xfit, 0, x);
 	%}}}
 	% plot{{{
-	plot(xfit, yfit, 'r','LineWidth', 1);
+	if showCurveFit
+		plot(xfit, yfit, 'r','LineWidth', 1);
+	end
 	ylim([0, 1])
 	xlim([bedRange(1), bedRange(2)])
 	xlabel(xname)
