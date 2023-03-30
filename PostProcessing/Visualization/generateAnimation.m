@@ -39,7 +39,7 @@ function generateAnimation(varargin)
 	%GET index : [1]{{{
 	subind = getfieldvalue(options,'index', [1]);
 	% }}}
-	%GET frame step : 2 {{{
+	%GET frame step : 10 {{{
 	nstep = getfieldvalue(options,'frame step', 10);
 	% }}}
 	%GET load obs : true {{{
