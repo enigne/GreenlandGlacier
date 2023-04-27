@@ -1,8 +1,8 @@
 % Project the Transient solutions and time dependent variables to the 0-levelset isoline
 %	
-% Last modified: 2023-04-26
+% Last modified: 2023-04-27
 
-function projectAblationRateToIsoline(varargin)
+function projectAblationRate(varargin)
 	%Check inputs {{{
 	%recover options
 	options=pairoptions(varargin{:});
@@ -24,7 +24,7 @@ function projectAblationRateToIsoline(varargin)
 	stepName = getfieldvalue(options, 'step name', 'Transient');
 	% }}}
 	%GET ref front model{{{
-	mdRefFrontFolder = getfieldvalue(options, 'ref front model', '');
+	mdRefFrontsFolder = getfieldvalue(options, 'ref front model', '');
 	% }}}
 	%GET data filename: Arates_Obs{{{
 	datafilename = getfieldvalue(options, 'data filename', 'Arates_Obs');
@@ -38,6 +38,9 @@ function projectAblationRateToIsoline(varargin)
 	%GET time windows: [0, 12, 30, 60, 90]{{{
 	timeWindows= getfieldvalue(options, 'time windows', [0, 12, 30, 60, 90]);
 	% }}}
+	%GET flowline contour: flowlineContour{{{
+	flowlineContourExp = getfieldvalue(options, 'flowline contour', 'flowlineContour');
+	% }}}
 	%GET velocity threshold: 4000{{{
 	velThreshold = getfieldvalue(options, 'velocity threshold', 4000);
 	% }}}
@@ -47,16 +50,10 @@ function projectAblationRateToIsoline(varargin)
 	%GET branch threshold: 0{{{
 	branchThreshold = getfieldvalue(options, 'branch threshold', 0);
 	% }}}
-	%GET dataname: cmRates{{{
-	dataname = getfieldvalue(options, 'dataname', 'cmRates');
-	% }}}
-	%GET flowline contour: flowlineContour{{{
-	flowlineContourExp = getfieldvalue(options, 'flowline contour', 'flowlineContour');
-	% }}}
 
 	% load model {{{
-	org=organizer('repository', [projPath, '/Models/', mdRefFrontFolder], 'prefix', ['Model_' glacier '_'], 'steps', 0);
-	disp(['    Loading model from ', mdRefFrontFolder]);
+	org=organizer('repository', [projPath, '/Models/', mdRefFrontsFolder], 'prefix', ['Model_' glacier '_'], 'steps', 0);
+	disp(['    Loading model from ', mdRefFrontsFolder]);
 	md = loadmodel(org, stepName);
 	% load transient data
 	time = cell2mat({md.results.TransientSolution(:).time});
@@ -88,7 +85,6 @@ function projectAblationRateToIsoline(varargin)
 		StrainRateperpendicular = cell2mat({md.results.TransientSolution(:).StrainRateperpendicular});
 	end
 	disp('    Loading model done!'); %}}}
-
 	% process each time window averaged data{{{
 	for tw = 1:length(timeWindows)
 		if timeWindows(tw) > 0
@@ -99,13 +95,7 @@ function projectAblationRateToIsoline(varargin)
 		disp(['    Loading the frontal ablation rate from ', aratedatafile]);
 		aratedata = load([aratedatafile, '.mat']);
 		aRtime = aratedata.time;
-		if strcmp(dataname, 'cmRates')
-			aRate = aratedata.cmRates;
-		elseif strcmp(dataname, 'sigmaMax')
-			aRate = aratedata.sigmaMax;
-		else 
-			error('unknown dataname')
-		end
+		aRate = aratedata.cmRates;
 		%% process data {{{
 		zeroLS = struct([]);
 
@@ -147,15 +137,15 @@ function projectAblationRateToIsoline(varargin)
 		%}}}
 		% rearrange the iosline data into a matrix{{{
 		disp(['    reshape isoline data to a matrix'])
+
+		% find the maximal, both positive and negative, distToFlowlineC
+		dist_min = min(cellfun(@min, {zeroLS(:).distToFlowlineC}));
+		dist_max = max(cellfun(@max, {zeroLS(:).distToFlowlineC}));
+		% max number of points
 		Ncont = cellfun(@length, {zeroLS(:).aRateC});
-		dist = cellfun(@(x) x(end), {zeroLS(:).dist});
-		% find the max length of the isoline
 		maxN = max(Ncont);
-		maxDist = max(dist);
-		xDist = linspace(0, maxDist, maxN);
-		%padding = [ceil((maxN-Ncont)/2)+1; maxN-floor((maxN-Ncont)/2)]; % align in the center
-		%padding = [maxN-Ncont+1;ones(1,Ndata)*maxN];  % to the end
-		%padding = [ones(1,Ndata); Ncont];  % start from the beginning
+		% find the max length of the isoline
+		xDist = linspace(dist_min, dist_max, maxN);
 
 		aRateC = nan(maxN, Nt);
 		BedC = nan(maxN, Nt);
@@ -172,20 +162,20 @@ function projectAblationRateToIsoline(varargin)
 		times = repmat([1:Nt], maxN, 1);
 		% project to the new xDist grid
 		for i = 1:Nt
-			aRateC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).aRateC, xDist, 'linear');
-			BedC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).BedC, xDist, 'linear');
-			bxC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).bxC, xDist, 'linear');
-			byC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).byC, xDist, 'linear');
-			HC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).HC, xDist, 'linear');
-			VelC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).velC, xDist, 'linear');
-			SigmaC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).sigmaC, xDist, 'linear');
-			sidewallDistC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).sidewallDistC, xDist, 'linear');
+			aRateC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).aRateC, xDist, 'linear');
+			BedC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).BedC, xDist, 'linear');
+			bxC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).bxC, xDist, 'linear');
+			byC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).byC, xDist, 'linear');
+			HC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).HC, xDist, 'linear');
+			VelC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).velC, xDist, 'linear');
+			SigmaC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).sigmaC, xDist, 'linear');
+			sidewallDistC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).sidewallDistC, xDist, 'linear');
 			if strainrateFlag
-				StrainRateparallelC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).StrainRateparallel, xDist, 'linear');
-				StrainRateperpendicularC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).StrainRateperpendicular, xDist, 'linear');
+				StrainRateparallelC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).StrainRateparallel, xDist, 'linear');
+				StrainRateperpendicularC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).StrainRateperpendicular, xDist, 'linear');
 			end
-			XC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).contours.x, xDist, 'linear');
-			YC(:,i) = interp1(0.5*(maxDist-zeroLS(i).dist(end)) + zeroLS(i).dist, zeroLS(i).contours.y, xDist, 'linear');
+			XC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).contours.x, xDist, 'linear');
+			YC(:,i) = interp1(zeroLS(i).distToFlowlineC, zeroLS(i).contours.y, xDist, 'linear');
 		end
 		%}}}
 		% cleanup {{{
@@ -193,7 +183,7 @@ function projectAblationRateToIsoline(varargin)
 		nanflag = isnan(BedC);
 		nanflag = nanflag | (BedC > -0);
 		nanflag = nanflag | (aRateC < 0);
-		nanflag = nanflag | (VelC < velThreshold);
+%		nanflag = nanflag | (VelC < velThreshold);
 		if (chooseBranch == 1) % northern
 			nanflag(xDist < branchThreshold,:) = 1;
 		elseif (chooseBranch == 2) % center or southern
@@ -214,18 +204,10 @@ function projectAblationRateToIsoline(varargin)
 		%% save {{{
 		if saveFlag
 			saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(tw))];
-			if strcmp(dataname, 'cmRates')
-				disp(['    Saving aRateC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'bxC', 'byC', 'aRateC', 'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'sidewallDistC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
-			elseif strcmp(dataname, 'sigmaMax')
-				sigmaMaxC = aRateC;
-				maxSigmaMaxC = maxArateC;
-				meanSigmaMaxC = meanArateC;
-				disp(['    Saving sigmaMaxC to ', saveFilename]);
-				save([saveFilename, '.mat'], 'time', 'xDist', 'HC', 'BedC', 'bxC', 'byC', 'sigmaMaxC', 'maxSigmaMaxC', 'meanSigmaMaxC', 'VelC', 'SigmaC', 'sidewallDistC', 'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
-			else 
-				error('unknown dataname')
-			end
+			disp(['    Saving aRateC to ', saveFilename]);
+			save([saveFilename, '.mat'],	'time', 'xDist', 'HC', 'BedC', 'bxC', 'byC', 'aRateC', ...
+													'maxArateC', 'meanArateC', 'VelC', 'SigmaC', 'sidewallDistC',...
+													'XC', 'YC', 'StrainRateparallelC', 'StrainRateperpendicularC');
 		end
 		%}}}
 	end %}}}
