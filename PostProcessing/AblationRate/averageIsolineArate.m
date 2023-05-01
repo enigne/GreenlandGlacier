@@ -45,6 +45,10 @@ function averageIsolineArate(varargin)
 	else
 		error(['Unknown data name ', dataname])
 	end
+
+	xDist = nsdata.xDist;
+	% remove nan
+	data(isnan(data))=0;
 	%}}}
 	% moving average{{{
 	for i = 1: length(timeWindows)
@@ -59,7 +63,7 @@ function averageIsolineArate(varargin)
 		if saveFlag
 			saveFilename = [projPath, resultsFolder, sfilename, num2str(timeWindows(i)), '.mat'];
 			disp(['    Saving ablation rate to ', saveFilename]);
-			eval(['save([saveFilename], ''', dataname, ''' , ''time'');'] )
+			eval(['save([saveFilename], ''', dataname, ''' , ''time'', ''xDist'');'] )
 		end
 	end
 	%}}}
