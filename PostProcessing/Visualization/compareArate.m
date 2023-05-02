@@ -63,4 +63,16 @@ function compareArate(varargin)
 		colormap(jet)
 		colorbar
 	end
+
+	figure('position', [0,800,800,300])
+	for i = 1:Nfile
+		plot(data{i}.time, max(data{i}.aRateC))
+		hold on
+	end
+	xlim([2007,2020])
+	ylim([0,4e4])
+	legend(titleList, 'location', 'best')
+	ylabel('Arate (m/a)')
+	xlabel('Time (m/a)')
+
 	%}}}
