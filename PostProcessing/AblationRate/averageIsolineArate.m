@@ -1,6 +1,6 @@
 % To compute time average ablation rate along the frontal isoline
 %
-% Last Modified: 2023-04-28
+% Last Modified: 2023-05-02
 
 function averageIsolineArate(varargin)
 	%Check inputs {{{
@@ -30,8 +30,8 @@ function averageIsolineArate(varargin)
 	%GET isSave: 1{{{
 	saveFlag = getfieldvalue(options, 'isSave', 1);
 	% }}}
-	%GET time windows: [12, 30, 60, 90]{{{
-	timeWindows= getfieldvalue(options, 'time windows', [12,30,60,90]);
+	%GET time windows: [12, 30, 60, 90, 180]{{{
+	timeWindows= getfieldvalue(options, 'time windows', [12, 30, 60, 90, 180]);
 	% }}}
 	%GET dataname: cmRates{{{
 	dataname = getfieldvalue(options, 'data name', 'aRateC');
