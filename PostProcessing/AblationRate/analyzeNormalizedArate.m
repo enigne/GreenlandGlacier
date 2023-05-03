@@ -1,6 +1,6 @@
 % To compute the parameterization using ablation rate
 % 
-% Last Modified: 2022-12-06
+% Last Modified: 2023-05-03
 
 function analyzeNormalizedArate(varargin)
 	%Check inputs {{{
@@ -28,6 +28,7 @@ function analyzeNormalizedArate(varargin)
 	% }}}
 	%GET data filename: Arates_Obs_Isoline{{{
 	filename = getfieldvalue(options, 'data filename', 'Arates_Obs_Isoline');
+	reffile = [projPath, resultsFolder, filename, '_aver0.mat'];
 	datafile = [projPath, resultsFolder, filename, '_aver', num2str(timeWindow), '.mat'];
 	% }}}
 	%GET bed range: [-700, -200] {{{
@@ -59,13 +60,11 @@ function analyzeNormalizedArate(varargin)
 	% }}}
 
 	% load model {{{
-	disp(['    Loading ablation rate without smoothing from ', datafile])
-	nsdata=load(datafile);
-	nAc = nsdata.aRateC ./ nsdata.maxArateC;
-	Ac = nAc(:);
+	disp(['    Loading reference without smoothing from ', reffile])
+	refdata=load(reffile);
 	if xdataInd == 1
 		disp('   Use bed elevation for x-axis');
-		Bed =  nsdata.BedC(:);
+		Bed =  refdata.BedC(:);
 		xname = 'Bed elevation (m)';
 	elseif xdataInd == 2 % normalized vel
 		disp('   Use normalized velocity for x-axis');
@@ -101,6 +100,17 @@ function analyzeNormalizedArate(varargin)
 		error('missing xdata');
 	end
 	Bed = Bed(:);
+	%}}}
+	% Set mask {{{
+	disp(['    Loading ablation rate from ', datafile])
+	nsdata=load(datafile);
+	maxArateC = max(nsdata.aRateC);
+	nAc = nsdata.aRateC ./ maxArateC;
+	nanFlag = isnan(nsdata.aRateC) | isnan(refdata.BedC);
+	nanFlag = nanFlag | (refdata.VelC<200);
+	nAc(nanFlag) = NaN;
+	Ac = nAc(:);
+
 	%}}}
 	% Calculate the means{{{
 	xbed = linspace(bedRange(1), bedRange(2), Nx+1);
