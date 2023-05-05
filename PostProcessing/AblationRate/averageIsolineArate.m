@@ -31,7 +31,7 @@ function averageIsolineArate(varargin)
 	saveFlag = getfieldvalue(options, 'isSave', 1);
 	% }}}
 	%GET time windows: [12, 30, 60, 90, 180]{{{
-	timeWindows= getfieldvalue(options, 'time windows', [12, 30, 60, 90, 180]);
+	timeWindows= getfieldvalue(options, 'time windows', [12, 30, 60, 90, 180, 365, 730]);
 	% }}}
 	%GET dataname: cmRates{{{
 	dataname = getfieldvalue(options, 'data name', 'aRateC');
