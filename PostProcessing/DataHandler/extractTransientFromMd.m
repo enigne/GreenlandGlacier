@@ -47,8 +47,9 @@ function extractTransientFromMd(md, projPath, folder, dataName, flowlineList, sa
 	end
 
 	disp(['======> Projecting vel along the flowlines ']);
-	Xdist = linspace(-100e3, 1e3, floor(101e3/50));
+	Xdist = [-100:5:-30, -29:1:-5,linspace(-5,1,floor(5e3/50))]
 	velFL_all = projectSolutionsToFlowlines(md, flowlineList, ice_levelset, time, Xdist, vel);
+	velFL = squeeze(mean(velFL_all,1))
 
 	% save data
 	if saveflag
@@ -58,11 +59,10 @@ function extractTransientFromMd(md, projPath, folder, dataName, flowlineList, sa
 			'time', 'vx', 'vy', 'ice_levelset');
 
 		save([savePath, 'transientSolutions', '.mat'], 'name', ...
-			'time', 'icevolume', 'meanSMB', 'meanVel', 'flowlines');
+			'time', 'icevolume', 'meanSMB', 'meanVel', 'flowlines', 'Xdist', 'velFL');
 
 		save([savePath, 'compareToObs.mat'], 'vx_aver', 'vy_aver', 'dataName');
 
-		save([savePath, 'velOnFlowlines.mat'], 'time', 'Xdist', 'velFL_all');
 		disp(['======> Saving complete ']);
 	end
 	%}}}
