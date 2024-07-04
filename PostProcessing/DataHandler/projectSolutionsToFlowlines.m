@@ -17,7 +17,7 @@ function dataFL_all = projectSolutionsToFlowlines(md, flowlineList, icelevelset,
 	dataFL_all = zeros(nFlowline, nTime, nX);
 	% project to each flowline
 	for i = 1: nFlowline
-		disp('==> Projecting data to flowline ', num2str(i))
+		disp(['==> Projecting data to flowline ', num2str(i)])
 		% x-levelset
 		icemaskFL = InterpFromMeshToMesh2d(md.mesh.elements,md.mesh.x,md.mesh.y,icelevelset,flowlineList{i}.x,flowlineList{i}.y);
 		% y-data
